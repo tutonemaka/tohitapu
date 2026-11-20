@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="to">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tohi Tapu – Tongan & English Bible</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#5b0f0b">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Tohi Tapu">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#faf7f0; --paper:#ffffff; --ink:#1e1b16; --muted:#6f675a; --line:#e6dfd0;
+  --accent:#8c1c13; --accent-soft:#f6e9e6; --eng-bg:#f3efe5; --eng-ink:#3d3a33; --mark:#fff1b8;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme=light]){ --bg:#16140f; --paper:#1f1c16; --ink:#efe9dc; --muted:#a59c8b; --line:#353026;
+    --accent:#e0786b; --accent-soft:#3a2420; --eng-bg:#2a261e; --eng-ink:#d7cfbf; --mark:#5a4a12; }
+}
+:root[data-theme=dark]{ --bg:#16140f; --paper:#1f1c16; --ink:#efe9dc; --muted:#a59c8b; --line:#353026;
+    --accent:#e0786b; --accent-soft:#3a2420; --eng-bg:#2a261e; --eng-ink:#d7cfbf; --mark:#5a4a12; }
+:root{--fs:19px;--ff:"Gentium Book Plus",Georgia,serif;--lh:1.6}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink)}
+body{font-family:Inter,system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+header{position:sticky;top:0;z-index:5;background:var(--paper);border-bottom:1px solid var(--line)}
+.bar{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:8px;padding:10px 14px}
+.title{flex:1;min-width:0;background:none;border:0;color:var(--ink);font:600 17px Inter,sans-serif;text-align:left;padding:6px 0;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.title small{display:block;font-weight:400;font-size:12px;color:var(--muted)}
+button.icon{border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:10px;height:38px;min-width:38px;padding:0 10px;font:500 14px Inter,sans-serif;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+button.icon.on{background:var(--accent);border-color:var(--accent);color:#fff}
+button.icon svg{width:18px;height:18px}
+main{max-width:760px;margin:0 auto;padding:8px 14px 120px}
+.hint{color:var(--muted);font-size:13px;margin:10px 2px 6px}
+.verse{display:block;width:100%;text-align:left;color:inherit;padding:10px 8px;margin:2px 0;border-radius:10px;cursor:pointer;font:var(--fs)/var(--lh) var(--ff);outline:none}
+.verse:hover{background:var(--accent-soft)}
+.verse.open,.verse.flash{background:var(--accent-soft)}
+.verse.flash{box-shadow:inset 0 0 0 2px var(--accent)}
+.num{color:var(--accent);font:600 12px Inter,sans-serif;vertical-align:super;margin-right:6px}
+.star{color:var(--accent);font-size:13px;margin-right:4px;vertical-align:super}
+.eng{display:none;margin:8px 0 2px;padding:10px 12px;border-left:3px solid var(--accent);background:var(--eng-bg);color:var(--eng-ink);border-radius:0 8px 8px 0;font:italic calc(var(--fs) - 2px)/calc(var(--lh) - .05) var(--ff)}
+.verse.open .eng{display:block}
+.eng b{font:600 11px Inter,sans-serif;font-style:normal;letter-spacing:.06em;color:var(--muted);display:block;margin-bottom:2px}
+.acts{display:none;gap:6px;flex-wrap:wrap;margin-top:8px}
+.verse.open .acts{display:flex}
+.acts button{border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:999px;padding:7px 12px;font:500 13px Inter,sans-serif;cursor:pointer}
+.acts button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.ptitle{margin:6px 8px 4px;font:italic 16px/1.5 "Gentium Book Plus",Georgia,serif;color:var(--muted)}
+.nav{position:fixed;left:0;right:0;bottom:0;background:var(--paper);border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom))}
+.nav .in{max-width:760px;margin:0 auto;display:flex;gap:10px}
+.nav button{flex:1;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:500 15px Inter,sans-serif;cursor:pointer}
+.nav button:disabled{opacity:.35}
+.sheet{position:fixed;inset:0;z-index:10;background:var(--bg);overflow:auto;display:none}
+.sheet.show{display:block}
+.sheet .bar{position:sticky;top:0;background:var(--paper);border-bottom:1px solid var(--line);max-width:none;z-index:2}
+.sheet .wrap{max-width:760px;margin:0 auto;padding:10px 14px 40px}
+h2{font:600 13px Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:18px 2px 8px}
+.books{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.book{text-align:left;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:12px;padding:10px 12px;cursor:pointer;font:500 15px Inter,sans-serif}
+.book small{display:block;color:var(--muted);font-weight:400;font-size:12px;margin-top:2px}
+.book.cur{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.chaps{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:8px}
+.chap{height:48px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:10px;font:500 16px Inter,sans-serif;cursor:pointer}
+.chap.cur{background:var(--accent);color:#fff;border-color:var(--accent)}
+.field{width:100%;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:0 12px;font:16px Inter,sans-serif;margin-top:6px}
+.seg{display:flex;gap:6px;margin:10px 0 4px}
+.seg button{flex:1;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:10px;padding:8px;font:500 13px Inter,sans-serif;cursor:pointer}
+.seg button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.res{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:none;color:var(--ink);padding:12px 4px;cursor:pointer}
+.res .r{font:600 13px Inter,sans-serif;color:var(--accent);margin-bottom:3px}
+.res .t{font:16px/1.5 "Gentium Book Plus",Georgia,serif}
+.res .e{font:italic 15px/1.45 "Gentium Book Plus",Georgia,serif;color:var(--muted);margin-top:3px}
+.res mark{background:var(--mark);color:inherit;border-radius:3px;padding:0 1px}
+.go{display:block;width:100%;text-align:left;border:1px solid var(--accent);background:var(--accent-soft);color:var(--ink);border-radius:12px;padding:12px;margin:10px 0;font:600 15px Inter,sans-serif;cursor:pointer}
+.status{color:var(--muted);font-size:13px;margin:10px 2px}
+.more{margin:14px 0;width:100%;height:42px;border-radius:12px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:500 14px Inter,sans-serif;cursor:pointer}
+.note{display:block;margin:8px 0 2px;padding:8px 12px;border-radius:8px;background:var(--mark);color:var(--ink);font:15px/1.45 Inter,sans-serif;white-space:pre-wrap}
+.note b{display:block;font:600 11px Inter,sans-serif;letter-spacing:.06em;color:var(--muted);margin-bottom:2px}
+.nmark{font-size:12px;margin-right:4px;vertical-align:super}
+.modal{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center}
+.modal.show{display:flex}
+.modal .box{background:var(--paper);color:var(--ink);width:100%;max-width:600px;border-radius:16px 16px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom))}
+.modal h3{margin:0 0 4px;font:600 16px Inter,sans-serif}
+.modal .sub{color:var(--muted);font-size:13px;margin-bottom:10px}
+.modal textarea{width:100%;min-height:140px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);padding:10px;font:16px/1.45 Inter,sans-serif;resize:vertical}
+.modal .row{display:flex;gap:8px;margin-top:10px}
+.modal .row button{flex:1;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:500 15px Inter,sans-serif;cursor:pointer}
+.modal .row button.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.opt{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 2px;border-bottom:1px solid var(--line);font:15px Inter,sans-serif}
+.opt .seg{margin:0;flex:0 0 auto}
+.opt .seg button{flex:0 0 auto;padding:8px 12px}
+.preview{margin-top:16px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:var(--fs)/var(--lh) var(--ff)}
+.sw{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);cursor:pointer;padding:0;flex:0 0 auto}
+.sw.on{box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--accent)}
+.sws{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.acts .hl{display:flex;gap:6px;align-items:center;margin-left:2px}
+.acts .hl .sw{width:26px;height:26px}
+.verse.hlv{background:var(--hlc)}
+.verse.hlv.open{box-shadow:inset 0 0 0 2px var(--accent)}
+#splash{position:fixed;inset:0;z-index:50;background:radial-gradient(circle at 50% 40%,#3b2a1c,#120c07);display:flex;align-items:center;justify-content:center;flex-direction:column;perspective:1400px;transition:opacity .6s}
+#splash.hide{opacity:0;pointer-events:none}
+.bk{position:relative;width:200px;height:280px;transform-style:preserve-3d;transform:rotateX(8deg)}
+.pages{position:absolute;inset:0;border-radius:4px 10px 10px 4px;background:linear-gradient(90deg,#efe6d2,#fbf6ea 12%,#fbf6ea);box-shadow:0 20px 50px rgba(0,0,0,.6);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;color:#5a1a12;font-family:"Gentium Book Plus",Georgia,serif}
+.pages .t1{font-size:15px;letter-spacing:.12em;opacity:0;animation:fadeIn .8s 1.5s forwards}
+.pages .t2{font-size:26px;font-weight:700;margin:6px 0;opacity:0;animation:fadeIn .8s 1.7s forwards}
+.pages .t3{font:12px Inter,sans-serif;color:#7a6a55;opacity:0;animation:fadeIn .8s 1.9s forwards}
+.cover{position:absolute;inset:0;border-radius:4px 10px 10px 4px;transform-origin:left center;background:linear-gradient(135deg,#5b0f0b,#2e0705);border:2px solid #7a2a1a;box-shadow:inset 0 0 0 8px #3c0a07,inset 0 0 0 10px #b8913f;display:flex;align-items:center;justify-content:center;backface-visibility:hidden;animation:openCover 1.6s .6s cubic-bezier(.5,.05,.3,1) forwards}
+.cover .cr{width:40px;height:64px;position:relative}
+.cover .cr:before,.cover .cr:after{content:"";position:absolute;background:#d9b45a;border-radius:2px}
+.cover .cr:before{left:17px;top:0;width:6px;height:64px}
+.cover .cr:after{left:4px;top:16px;width:32px;height:6px}
+.cover .ct{position:absolute;bottom:40px;left:0;right:0;text-align:center;color:#d9b45a;font:600 13px Georgia,serif;letter-spacing:.2em}
+.skip{margin-top:28px;color:#cbb79a;font:13px Inter,sans-serif;opacity:.8}
+@keyframes openCover{to{transform:rotateY(-160deg)}}
+@keyframes fadeIn{to{opacity:1}}
+@media (prefers-reduced-motion: reduce){.cover{animation:none;display:none}.pages *{animation:none!important;opacity:1!important}}
+body.sbs .verse:not(.ptitle){display:grid;grid-template-columns:1fr 1fr;column-gap:16px}
+body.sbs .verse:not(.ptitle) .ton{grid-column:1}
+body.sbs .verse:not(.ptitle) .eng{display:block;grid-column:2;grid-row:1;margin:0;padding:0 0 0 12px;border-left:2px solid var(--line);background:none}
+body.sbs .verse:not(.ptitle) .eng b{display:none}
+body.sbs .verse .acts,body.sbs .verse .note{grid-column:1 / span 2}
+body.sbs main{max-width:1100px}
+body.sbs .bar{max-width:1100px}
+.votd{border:1px solid var(--line);background:var(--paper);border-radius:14px;padding:14px;margin:10px 0}
+.votd .vh{display:flex;justify-content:space-between;align-items:center;font:600 12px Inter,sans-serif;letter-spacing:.04em;color:var(--accent);text-transform:uppercase}
+.votd .vx{border:0;background:none;color:var(--muted);font-size:16px;cursor:pointer}
+.votd .vt{font:calc(var(--fs) - 1px)/1.5 var(--ff);margin-top:8px}
+.votd .ve{font:italic calc(var(--fs) - 3px)/1.45 var(--ff);color:var(--muted);margin-top:8px}
+.votd .vr{font:500 12px Inter,sans-serif;color:var(--muted);margin-top:4px}
+.votd .vb{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.votd .vb button{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:7px 12px;font:500 13px Inter,sans-serif;cursor:pointer}
+.votd .vb button.vgo,.votd .vb .pdone.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.pbar{height:8px;border-radius:99px;background:var(--line);margin-top:10px;overflow:hidden}.pbar div{height:100%;background:var(--accent)}
+.pday{display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line)}
+.pday.cur{background:var(--accent-soft);border-radius:8px}
+.pchk{width:28px;height:28px;flex:0 0 auto;border-radius:8px;border:2px solid var(--line);background:var(--paper);color:#fff;font:700 14px Inter,sans-serif;cursor:pointer;margin-left:4px}
+.pchk.on{background:var(--accent);border-color:var(--accent)}
+.plink{flex:1;text-align:left;border:0;background:none;color:var(--ink);padding:12px 4px;font:15px Inter,sans-serif;cursor:pointer}
+.plink b{color:var(--accent);margin-right:6px}
+#bmTabs button{padding:8px 4px;font-size:12px}
+.toast{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font:500 14px Inter,sans-serif;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+.toast.show{opacity:1}
+.load{padding:40px 0;text-align:center;color:var(--muted)}
+footer{color:var(--muted);font-size:12px;text-align:center;margin:30px 0 0;line-height:1.6}
+</style>
+</head>
+<body>
+<div id="splash" aria-label="Opening"><div class="bk"><div class="pages"><div class="t1">KO E</div><div class="t2">TOHI TAPU</div><div class="t1" style="animation-delay:1.6s">KĀTOA</div><div class="t3" style="margin-top:14px">Tongan &amp; English Bible</div></div><div class="cover"><div class="cr"></div><div class="ct">TOHI TAPU</div></div></div><div class="skip">Tap to open</div></div>
+<header>
+  <div class="bar">
+    <button class="title" id="titleBtn" aria-label="Choose book and chapter"><span id="ref">Tohi Tapu</span><small id="refEn"></small></button>
+    <button class="icon" id="searchBtn" title="Search or go to a verse" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
+    <button class="icon" id="bmBtn" title="Today, plans, bookmarks, notes" aria-label="My Bible"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/></svg></button>
+    <button class="icon" id="setBtn" title="Text size, dark mode, layout" aria-label="Settings" style="font-weight:600">Aa</button>
+    <button class="icon" id="allBtn" title="Show English for every verse">EN</button>
+  </div>
+</header>
+<main id="main"><div class="load">Loading…</div></main>
+<div class="nav"><div class="in">
+  <button id="prevBtn">‹ Kimuʻa</button>
+  <button id="nextBtn">Hoko ›</button>
+</div></div>
+
+<div class="sheet" id="sheet" role="dialog" aria-label="Panel">
+  <div class="bar">
+    <button class="icon" id="backBtn">‹</button>
+    <div class="title" id="sheetTitle" style="cursor:default"></div>
+    <button class="icon" id="closeBtn">✕</button>
+  </div>
+  <div class="wrap" id="sheetBody"></div>
+</div>
+<div class="toast" id="toast"></div>
+<div class="modal" id="noteModal" role="dialog" aria-label="Note"><div class="box">
+  <h3>Note · Fakamatala</h3><div class="sub" id="noteRef"></div>
+  <textarea id="noteText" placeholder="Write your note… (saved on this phone only)"></textarea>
+  <div class="row"><button id="noteDel">Delete</button><button id="noteCancel">Cancel</button><button class="pri" id="noteSave">Save</button></div>
+</div></div>
+
+<script>
+const BOOKS=[["GEN","Senesi","Genesis",50],["EXO","ʻEkisotosi","Exodus",40],["LEV","Levitiko","Leviticus",27],["NUM","Nomipā","Numbers",36],["DEU","Teutalonome","Deuteronomy",34],["JOS","Siosiua","Joshua",24],["JDG","Fakamaau","Judges",21],["RUT","Lute","Ruth",4],["1SA","1 Samuela","1 Samuel",31],["2SA","2 Samuela","2 Samuel",24],["1KI","1 Tuʻi","1 Kings",22],["2KI","2 Tuʻi","2 Kings",25],["1CH","1 Meʻa Hokohoko","1 Chronicles",29],["2CH","2 Meʻa Hokohoko","2 Chronicles",36],["EZR","ʻEsela","Ezra",10],["NEH","Nehemaia","Nehemiah",13],["EST","Eseta","Esther",10],["JOB","Siope","Job",42],["PSA","Saame","Psalms",150],["PRO","Lea Fakatātā","Proverbs",31],["ECC","Tangata Malanga","Ecclesiastes",12],["SNG","Hiva ʻa Solomone","Song of Solomon",8],["ISA","ʻIsaia","Isaiah",66],["JER","Selemaia","Jeremiah",52],["LAM","Tangilāulau","Lamentations",5],["EZK","ʻIsikieli","Ezekiel",48],["DAN","Taniela","Daniel",12],["HOS","Hosea","Hosea",14],["JOL","Soeli","Joel",3],["AMO","ʻAmosi","Amos",9],["OBA","ʻOpataia","Obadiah",1],["JON","Siona","Jonah",4],["MIC","Maika","Micah",7],["NAM","Nehumi","Nahum",3],["HAB","Hapakuki","Habakkuk",3],["ZEP","Sefanaia","Zephaniah",3],["HAG","Hakeai","Haggai",2],["ZEC","Sakalaia","Zechariah",14],["MAL","Malakai","Malachi",4],["MAT","Mātiu","Matthew",28],["MRK","Maʻake","Mark",16],["LUK","Luke","Luke",24],["JHN","Sione","John",21],["ACT","Ko e Ngāue ʻae Kau ʻAposetolo","Acts",28],["ROM","Loma","Romans",16],["1CO","1 Kolinitō","1 Corinthians",16],["2CO","2 Kolinitō","2 Corinthians",13],["GAL","Kaletia","Galatians",6],["EPH","ʻEfesō","Ephesians",6],["PHP","Filipai","Philippians",4],["COL","Kolose","Colossians",4],["1TH","1 Tesalonaika","1 Thessalonians",5],["2TH","2 Tesalonaika","2 Thessalonians",3],["1TI","1 Timote","1 Timothy",6],["2TI","2 Timote","2 Timothy",4],["TIT","Taitusi","Titus",3],["PHM","Filimone","Philemon",1],["HEB","Hepelū","Hebrews",13],["JAS","Semisi","James",5],["1PE","1 Pita","1 Peter",5],["2PE","2 Pita","2 Peter",3],["1JN","1 Sione","1 John",5],["2JN","2 Sione","2 John",1],["3JN","3 Sione","3 John",1],["JUD","Siute","Jude",1],["REV","Fakahā","Revelation",22]];
+const IDX=Object.fromEntries(BOOKS.map((b,i)=>[b[0],i]));
+const cache={};
+let state={b:"MAT",c:1}, showAll=false, pendingVerse=null, showVotdNow=false;
+const $=id=>document.getElementById(id);
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function norm(s){return String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f\u02bb\u2018\u2019'\u200c]/g,"").replace(/[^a-z0-9 ]+/g," ").replace(/\s+/g," ").trim()}
+
+async function loadBook(code){
+  if(!cache[code]){
+    cache[code]=fetch("data/"+code+".json").then(r=>{if(!r.ok)throw new Error(r.status);return r.json()})
+      .catch(e=>{delete cache[code];throw e});
+  }
+  return cache[code];
+}
+let titlesP=null;
+function loadTitles(){if(!titlesP){titlesP=fetch("data/PSA_titles.json").then(r=>r.ok?r.json():{}).catch(()=>({}))}return titlesP}
+
+/* ---------- bookmarks ---------- */
+let bms=[]; try{bms=JSON.parse(store.get("tt-bm")||"[]")}catch(e){bms=[]}
+const bmKey=(b,c,v)=>b+"-"+c+"-"+v;
+function isBm(b,c,v){return bms.includes(bmKey(b,c,v))}
+function toggleBm(b,c,v){const k=bmKey(b,c,v);const i=bms.indexOf(k);if(i>=0)bms.splice(i,1);else bms.unshift(k);store.set("tt-bm",JSON.stringify(bms));return i<0}
+
+/* ---------- toast & copy ---------- */
+let tt;function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),1800)}
+function copyText(txt){
+  const fallback=()=>{const ta=document.createElement("textarea");ta.value=txt;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand("copy")}catch(e){}ta.remove();return ok};
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(()=>toast("Copied"),()=>toast(fallback()?"Copied":"Could not copy"));return;
+    }
+  }catch(e){}
+  toast(fallback()?"Copied":"Could not copy");
+}
+
+/* ---------- chapter view ---------- */
+async function render(){
+  const bk=BOOKS[IDX[state.b]];
+  $("ref").textContent=bk[1]+" "+state.c;
+  $("refEn").textContent=bk[2]+" "+state.c;
+  $("main").innerHTML='<div class="load">Loading…</div>';
+  let rows;
+  try{rows=await loadBook(state.b)}catch(e){$("main").innerHTML='<div class="load">Could not load this book. Check your connection and try again.</div>';return}
+  const vs=rows.filter(r=>r[0]===state.c);
+  let titles={}; if(state.b==="PSA"){titles=await loadTitles();}
+  const pt=titles[String(state.c)];
+  let h='<p class="hint">Tap a verse to see the English (KJV), copy it, bookmark it or add a note.</p>';
+  if(pt&&(pt.t||pt.e)){h+=`<div class="verse ptitle${showAll?" open":""}" role="button" tabindex="0">${esc(pt.t||"")}<span class="eng"><b>KJV heading</b>${esc(pt.e||"")}</span></div>`;}
+  for(const [c,v,t,e] of vs){
+    const bm=isBm(state.b,c,v);
+    const nt=getNote(state.b,c,v);
+    const hc=getHl(state.b,c,v);
+    h+=`<div class="verse${showAll?" open":""}${hc?" hlv":""}"${hc?` style="--hlc:${HLC[hc]}"`:""} role="button" tabindex="0" data-v="${v}" id="v${v}"><span class="ton"><span class="num">${v}</span>${bm?'<span class="star">★</span>':''}${nt?'<span class="nmark">📝</span>':''}${esc(t||"—")}</span><span class="eng"><b>KJV ${esc(bk[2])} ${c}:${v}</b>${esc(e||"—")}</span>${nt?`<span class="note"><b>MY NOTE</b>${esc(nt)}</span>`:""}<span class="acts"><button data-act="ct">Copy Tongan</button><button data-act="ce">Copy English</button><button data-act="cb">Copy both</button><button data-act="bm" class="${bm?"on":""}">${bm?"★ Bookmarked":"☆ Bookmark"}</button><button data-act="nt">${nt?"✎ Edit note":"✎ Add note"}</button><span class="hl">${Object.keys(HLC).map(k=>`<button class="sw${hc===k?" on":""}" data-act="hl" data-c="${k}" style="background:${HLC[k]}" aria-label="Highlight ${k}"></button>`).join("")}${hc?'<button data-act="hl" data-c="" style="padding:5px 10px">✕</button>':""}</span></span></div>`;
+  }
+  if(showVotdNow){showVotdNow=false;h=(await votdCard(true))+h;}
+  h+=`<footer>Tongan: Ko e Tohi Tapu Kātoa, Revised West Version (public domain)<br>English: King James Version, 1769 standard text (public domain)<br>Text via eBible.org</footer>`;
+  $("main").innerHTML=h;
+  const i=IDX[state.b];
+  $("prevBtn").disabled=(i===0&&state.c===1);
+  $("nextBtn").disabled=(i===BOOKS.length-1&&state.c===bk[3]);
+  store.set("tt-loc",state.b+"-"+state.c);
+  const hash="#"+state.b+"-"+state.c+(pendingVerse?"-"+pendingVerse:"");
+  if(location.hash!==hash){try{history.replaceState(null,"",hash)}catch(e){}}
+  if(pendingVerse){
+    const el=$("v"+pendingVerse); pendingVerse=null;
+    if(el){el.classList.add("open","flash");el.scrollIntoView({block:"center"});setTimeout(()=>el.classList.remove("flash"),2200)} else window.scrollTo(0,0);
+  } else window.scrollTo(0,0);
+  const nb=BOOKS[i+1]; if(state.c===bk[3]&&nb) loadBook(nb[0]).catch(()=>{});
+}
+$("main").addEventListener("click",async e=>{
+  const a=e.target.closest("[data-act]");
+  const v=e.target.closest(".verse");
+  if(a&&v){
+    e.stopPropagation();
+    const vn=+v.dataset.v, bk=BOOKS[IDX[state.b]];
+    const rows=await loadBook(state.b); const r=rows.find(x=>x[0]===state.c&&x[1]===vn); if(!r)return;
+    const refT=`${bk[1]} ${state.c}:${vn}`, refE=`${bk[2]} ${state.c}:${vn}`;
+    const act=a.dataset.act;
+    if(act==="ct") copyText(`"${r[2]}" (${refT})`);
+    else if(act==="ce") copyText(`"${r[3]}" (${refE}, KJV)`);
+    else if(act==="cb") copyText(`"${r[2]}" (${refT})\n\n"${r[3]}" (${refE}, KJV)`);
+    else if(act==="nt"){ openNote(state.b,state.c,vn); }
+    else if(act==="hl"){ setHl(state.b,state.c,vn,a.dataset.c); pendingVerse=vn; render(); toast(a.dataset.c?"Highlighted":"Highlight removed"); }
+    else if(act==="bm"){
+      const on=toggleBm(state.b,state.c,vn);
+      a.classList.toggle("on",on); a.textContent=on?"★ Bookmarked":"☆ Bookmark";
+      const st=v.querySelector(".star");
+      if(on&&!st){const s=document.createElement("span");s.className="star";s.textContent="★";v.querySelector(".num").after(s)}
+      if(!on&&st)st.remove();
+      toast(on?"Bookmarked":"Bookmark removed");
+    }
+    return;
+  }
+  if(v) v.classList.toggle("open");
+});
+$("main").addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.classList.contains("verse")){e.preventDefault();e.target.click()}});
+$("allBtn").onclick=()=>{
+  showAll=!showAll; $("allBtn").classList.toggle("on",showAll); store.set("tt-all",showAll?"1":"0");
+  document.querySelectorAll("#main .verse").forEach(v=>v.classList.toggle("open",showAll));
+};
+function go(b,c,v){state={b,c};pendingVerse=v||null;render()}
+$("prevBtn").onclick=()=>{
+  const i=IDX[state.b];
+  if(state.c>1) go(state.b,state.c-1); else if(i>0) go(BOOKS[i-1][0],BOOKS[i-1][3]);
+};
+$("nextBtn").onclick=()=>{
+  const i=IDX[state.b], bk=BOOKS[i];
+  if(state.c<bk[3]) go(state.b,state.c+1); else if(i<BOOKS.length-1) go(BOOKS[i+1][0],1);
+};
+
+/* ---------- sheet: books / chapters ---------- */
+let sheetMode="books";
+function openSheet(title,back){$("sheet").classList.add("show");$("sheetTitle").textContent=title;$("backBtn").style.visibility=back?"visible":"hidden";$("sheet").scrollTop=0}
+function closeSheet(){$("sheet").classList.remove("show")}
+function openBooks(){
+  sheetMode="books"; openSheet("Fili ha tohi · Choose a book",false);
+  const card=b=>`<button class="book${b[0]===state.b?" cur":""}" data-b="${b[0]}">${b[1]}<small>${b[2]}</small></button>`;
+  $("sheetBody").innerHTML=`<input class="field" id="flt" placeholder="Kumi tohi · Find a book" autocomplete="off">
+  <div id="bl"><h2>Fuakava Motuʻa · Old Testament</h2><div class="books">${BOOKS.slice(0,39).map(card).join("")}</div>
+  <h2>Fuakava Foʻou · New Testament</h2><div class="books">${BOOKS.slice(39).map(card).join("")}</div></div>`;
+  $("flt").oninput=e=>{const q=norm(e.target.value);document.querySelectorAll("#bl .book").forEach(el=>{el.style.display=norm(el.textContent).includes(q)?"":"none"})};
+}
+function openChaps(code){
+  const bk=BOOKS[IDX[code]];
+  if(bk[3]===1){closeSheet();go(code,1);return}
+  sheetMode="chaps"; openSheet(bk[1]+" · "+bk[2],true);
+  let h='<h2>Vahe · Chapter</h2><div class="chaps">';
+  for(let c=1;c<=bk[3];c++) h+=`<button class="chap${code===state.b&&c===state.c?" cur":""}" data-b="${code}" data-c="${c}">${c}</button>`;
+  $("sheetBody").innerHTML=h+"</div>";
+  loadBook(code).catch(()=>{});
+}
+$("titleBtn").onclick=openBooks;
+$("closeBtn").onclick=closeSheet;
+$("backBtn").onclick=openBooks;
+$("sheetBody").addEventListener("click",e=>{
+  const g=e.target.closest("[data-go]"); if(g){const [b,c,v]=g.dataset.go.split("-");closeSheet();go(b,+c,v?+v:null);return}
+  const rm=e.target.closest("[data-rm]"); if(rm){e.stopPropagation();const [b,c,v]=rm.dataset.rm.split("-");toggleBm(b,+c,+v);openBookmarks();return}
+  const c=e.target.closest(".chap"); if(c){closeSheet();go(c.dataset.b,+c.dataset.c);return}
+  const b=e.target.closest(".book"); if(b) openChaps(b.dataset.b);
+});
+
+/* ---------- go to reference ---------- */
+const NAMEIDX=BOOKS.map((b,i)=>({i,names:[norm(b[1]),norm(b[2]),norm(b[0])].concat(b[0]==="ACT"?["ngaue","kau aposetolo"]:[]).concat(b[0]==="PSA"?["psalm"]:[])}));
+function parseRef(q){
+  const m=/^\s*(.+?)\s+(\d+)(?:\s*[:.\s]\s*(\d+))?\s*$/.exec(q.replace(/[\u2013\u2014-]\s*\d+\s*$/,""));
+  let name,c,v;
+  if(m){name=norm(m[1]);c=+m[2];v=m[3]?+m[3]:null}else{name=norm(q);c=1;v=null}
+  if(!name)return null;
+  let best=null;
+  for(const {i,names} of NAMEIDX){
+    for(const n of names){
+      let score=0;
+      if(n===name)score=3; else if(n.startsWith(name)&&name.length>=2)score=2; else if(name.startsWith(n)&&n.length>=3)score=1;
+      if(score&&(!best||score>best.score))best={i,score};
+    }
+  }
+  if(!best)return null;
+  const bk=BOOKS[best.i];
+  if(!m&&best.score<2)return null;
+  if(c<1||c>bk[3])return null;
+  return {b:bk[0],c,v};
+}
+
+/* ---------- search ---------- */
+let searchLang="both", lastQ="", searchAll=[], shown=0;
+async function loadAll(onProgress){
+  let done=0;
+  await Promise.all(BOOKS.map(b=>loadBook(b[0]).then(()=>{done++;onProgress&&onProgress(done)}).catch(()=>{done++;})));
+}
+function hl(text,terms){
+  let out=esc(text);
+  for(const t of terms){
+    if(t.length<2)continue;
+    const chars=[...t].map(ch=>{const base=ch.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");return "[\\u02bb\\u2018\\u2019'\\u200c]?"+(/[aeiou]/.test(ch)?"["+ch+({a:"āÁá",e:"ēé",i:"īí",o:"ōó",u:"ūú"}[ch]||"")+"]":base)}).join("");
+    try{out=out.replace(new RegExp("(^|[\\s“‘(\"\\-])("+chars+")","gi"),"$1<mark>$2</mark>")}catch(e){}
+  }
+  return out;
+}
+function openSearch(){
+  sheetMode="search"; openSheet("Kumi · Search",false);
+  $("sheetBody").innerHTML=`<input class="field" id="q" type="search" enterkeyhint="search" placeholder="Word, phrase or reference (e.g. Sione 3:16)" autocomplete="off" value="${esc(lastQ)}">
+  <div class="seg" id="seg"><button data-l="both">Both</button><button data-l="ton">Tongan</button><button data-l="eng">English</button></div>
+  <div id="sr"></div>`;
+  document.querySelectorAll("#seg button").forEach(b=>{b.classList.toggle("on",b.dataset.l===searchLang);b.onclick=()=>{searchLang=b.dataset.l;document.querySelectorAll("#seg button").forEach(x=>x.classList.toggle("on",x===b));doSearch()}});
+  const q=$("q"); let t;
+  q.oninput=()=>{clearTimeout(t);t=setTimeout(doSearch,350)};
+  q.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();clearTimeout(t);doSearch(true)}};
+  setTimeout(()=>q.focus(),50);
+  if(lastQ)doSearch();
+}
+async function doSearch(enter){
+  const raw=$("q").value.trim(); lastQ=raw;
+  const sr=$("sr");
+  if(!raw){sr.innerHTML='<p class="status">Type a word in Tongan or English, or a reference like “Sione 3:16”, “John 3:16” or “Saame 23”.</p>';return}
+  const ref=parseRef(raw);
+  let h="";
+  if(ref){
+    const bk=BOOKS[IDX[ref.b]];
+    h+=`<button class="go" data-go="${ref.b}-${ref.c}${ref.v?"-"+ref.v:""}">Go to ${esc(bk[1])} ${ref.c}${ref.v?":"+ref.v:""} · ${esc(bk[2])} ${ref.c}${ref.v?":"+ref.v:""} ›</button>`;
+    if(enter&&/\d/.test(raw)){closeSheet();go(ref.b,ref.c,ref.v);return}
+  }
+  const terms=norm(raw).split(" ").filter(Boolean);
+  if(!terms.length||norm(raw).length<2){sr.innerHTML=h;return}
+  sr.innerHTML=h+'<p class="status" id="st">Searching…</p>';
+  await loadAll(n=>{const st=$("st");if(st)st.textContent=`Loading the Bible for search… ${Math.round(n/BOOKS.length*100)}%`});
+  if(raw!==lastQ)return;
+  const phrase=norm(raw);
+  const res=[];
+  for(const b of BOOKS){
+    const rows=await loadBook(b[0]);
+    for(const r of rows){
+      const tn=searchLang!=="eng"?norm(r[2]):"", en=searchLang!=="ton"?norm(r[3]):"";
+      const hay=" "+tn+" | "+en+" ";
+      if(terms.length===1){ if(!hay.includes(" "+terms[0]))continue; }
+      else if(!hay.includes(" "+phrase)&&!terms.every(t=>hay.includes(" "+t)))continue;
+      const exact=hay.includes(" "+phrase)?0:1;
+      res.push([exact,b,r]);
+    }
+  }
+  res.sort((a,b)=>a[0]-b[0]);
+  searchAll=res; shown=0;
+  sr.innerHTML=h+`<p class="status">${res.length?res.length.toLocaleString()+" verse"+(res.length===1?"":"s")+" found":"No verses found."}</p><div id="rl"></div>`;
+  showMore(terms);
+}
+function showMore(terms){
+  terms=terms||norm(lastQ).split(" ").filter(Boolean);
+  const rl=$("rl"); if(!rl)return;
+  const old=$("moreBtn"); if(old)old.remove();
+  let h="";
+  for(const [x,b,r] of searchAll.slice(shown,shown+50)){
+    h+=`<button class="res" data-go="${b[0]}-${r[0]}-${r[1]}"><div class="r">${esc(b[1])} ${r[0]}:${r[1]} · ${esc(b[2])} ${r[0]}:${r[1]}</div>${searchLang!=="eng"?`<div class="t">${hl(r[2],terms)}</div>`:""}${searchLang!=="ton"?`<div class="${searchLang==="eng"?"t":"e"}">${hl(r[3],terms)}</div>`:""}</button>`;
+  }
+  shown=Math.min(shown+50,searchAll.length);
+  rl.insertAdjacentHTML("beforeend",h);
+  if(shown<searchAll.length){rl.insertAdjacentHTML("afterend",`<button class="more" id="moreBtn">Show more (${(searchAll.length-shown).toLocaleString()} left)</button>`);$("moreBtn").onclick=()=>showMore()}
+}
+$("searchBtn").onclick=openSearch;
+
+/* ---------- bookmarks view ---------- */
+const TABS=()=>`<div class="seg" id="bmTabs"><button data-t="today" class="${sheetMode==="today"?"on":""}">☀ Today</button><button data-t="plans" class="${sheetMode==="plans"?"on":""}">📖 Plans</button><button data-t="bm" class="${sheetMode==="bm"?"on":""}">★ Saved</button><button data-t="notes" class="${sheetMode==="notes"?"on":""}">📝 Notes</button><button data-t="hl" class="${sheetMode==="hls"?"on":""}">🖍 Colours</button></div>`;
+function wireTabs(){document.querySelectorAll("#bmTabs button").forEach(b=>b.onclick=()=>({today:openToday,plans:openPlans,bm:openBookmarks,notes:openNotesList,hl:openHlList})[b.dataset.t]())}
+async function openHlList(){
+  sheetMode="hls"; openSheet("Highlights",false);
+  const keys=Object.keys(hls).sort((a,b)=>{const pa=a.split("-"),pb=b.split("-");return IDX[pa[0]]-IDX[pb[0]]||pa[1]-pb[1]||pa[2]-pb[2]});
+  if(!keys.length){$("sheetBody").innerHTML=TABS()+'<p class="status">No highlights yet. Tap a verse, then tap a colour. Highlights are saved on this phone only.</p>';wireTabs();return}
+  let h=TABS()+`<p class="status">${keys.length} highlight${keys.length===1?"":"s"} · saved on this phone only</p>`;
+  for(const k of keys){const [b,c,v]=k.split("-"); if(!(b in IDX))continue; const bk=BOOKS[IDX[b]];
+    let r=null; try{r=(await loadBook(b)).find(x=>x[0]===+c&&x[1]===+v)}catch(e){}
+    h+=`<button class="res" data-go="${b}-${c}-${v}" style="border-left:6px solid ${HLC[hls[k]]};padding-left:10px"><div class="r">${esc(bk[1])} ${c}:${v} · ${esc(bk[2])} ${c}:${v}</div>${r?`<div class="t">${esc(r[2])}</div>`:""}</button>`;}
+  $("sheetBody").innerHTML=h; wireTabs();
+}
+async function openNotesList(){
+  sheetMode="notes"; openSheet("My notes · Fakamatala",false);
+  const keys=Object.keys(notes);
+  if(!keys.length){$("sheetBody").innerHTML=TABS()+'<p class="status">No notes yet. Tap a verse, then tap “✎ Add note”. Notes are saved on this phone only.</p>';wireTabs();return}
+  keys.sort((a,b)=>{const pa=a.split("-"),pb=b.split("-");return IDX[pa[0]]-IDX[pb[0]]||pa[1]-pb[1]||pa[2]-pb[2]});
+  let h=TABS()+`<p class="status">${keys.length} note${keys.length===1?"":"s"} · saved on this phone only</p>`;
+  for(const k of keys){const [b,c,v]=k.split("-"); if(!(b in IDX))continue; const bk=BOOKS[IDX[b]];
+    h+=`<button class="res" data-go="${b}-${c}-${v}"><div class="r">${esc(bk[1])} ${c}:${v} · ${esc(bk[2])} ${c}:${v}</div><div class="t" style="white-space:pre-wrap">${esc(notes[k])}</div></button>`;}
+  $("sheetBody").innerHTML=h; wireTabs();
+}
+async function openBookmarks(){
+  sheetMode="bm"; openSheet("Bookmarks · Ngaahi fakaʻilonga",false);
+  if(!bms.length){$("sheetBody").innerHTML=TABS()+'<p class="status">No bookmarks yet. Tap a verse, then tap “☆ Bookmark”. Bookmarks are saved on this phone only.</p>';wireTabs();return}
+  $("sheetBody").innerHTML='<p class="status">Loading…</p>';
+  let h=TABS()+`<p class="status">${bms.length} bookmark${bms.length===1?"":"s"} · saved on this phone only</p>`;
+  for(const k of bms){
+    const [b,c,v]=k.split("-"); if(!(b in IDX))continue; const bk=BOOKS[IDX[b]];
+    let r=null; try{r=(await loadBook(b)).find(x=>x[0]===+c&&x[1]===+v)}catch(e){}
+    h+=`<div style="display:flex;gap:8px;align-items:flex-start"><button class="res" style="flex:1" data-go="${b}-${c}-${v}"><div class="r">${esc(bk[1])} ${c}:${v} · ${esc(bk[2])} ${c}:${v}</div>${r?`<div class="t">${esc(r[2])}</div><div class="e">${esc(r[3])}</div>`:""}</button><button class="icon" style="margin-top:12px" data-rm="${k}" title="Remove bookmark">✕</button></div>`;
+  }
+  $("sheetBody").innerHTML=h; wireTabs();
+}
+$("bmBtn").onclick=openToday;
+
+/* ---------- highlights ---------- */
+const HLC={yellow:"rgba(255,214,10,.32)",green:"rgba(80,200,120,.28)",blue:"rgba(90,160,255,.28)",pink:"rgba(255,120,170,.28)",orange:"rgba(255,150,60,.30)"};
+let hls={}; try{hls=JSON.parse(store.get("tt-hl")||"{}")}catch(e){hls={}}
+function getHl(b,c,v){return hls[bmKey(b,c,v)]||""}
+function setHl(b,c,v,col){const k=bmKey(b,c,v); if(col)hls[k]=col; else delete hls[k]; store.set("tt-hl",JSON.stringify(hls))}
+
+/* ---------- verse of the day ---------- */
+const VOTD=["JHN-3-16", "PSA-23-1", "PHP-4-13", "JER-29-11", "ROM-8-28", "PRO-3-5", "PRO-3-6", "ISA-41-10", "JOS-1-9", "MAT-11-28", "PSA-46-1", "ROM-12-2", "GAL-5-22", "HEB-11-1", "2TI-1-7", "1CO-13-4", "1CO-13-13", "MAT-6-33", "PHP-4-6", "PHP-4-7", "PSA-119-105", "ISA-40-31", "JHN-14-6", "JHN-14-27", "ROM-5-8", "ROM-6-23", "EPH-2-8", "2CO-5-17", "1JN-1-9", "1JN-4-8", "1JN-4-19", "PSA-37-4", "PSA-121-1", "PSA-27-1", "PSA-34-8", "PSA-51-10", "PSA-103-12", "PSA-139-14", "LAM-3-22", "MIC-6-8", "ZEP-3-17", "NUM-6-24", "DEU-31-6", "1SA-16-7", "2CH-7-14", "NEH-8-10", "JOB-19-25", "ISA-26-3", "ISA-53-5", "ISA-55-8", "ISA-9-6", "MAT-5-14", "MAT-5-16", "MAT-7-7", "MAT-28-19", "MRK-10-27", "MRK-12-30", "LUK-1-37", "LUK-6-31", "JHN-1-1", "JHN-1-14", "JHN-8-12", "JHN-10-10", "JHN-11-25", "JHN-13-34", "JHN-15-5", "JHN-15-13", "JHN-16-33", "ACT-1-8", "ROM-1-16", "ROM-3-23", "ROM-8-1", "ROM-8-38", "ROM-10-9", "ROM-12-12", "ROM-15-13", "1CO-10-13", "1CO-16-14", "2CO-12-9", "GAL-2-20", "GAL-6-9", "EPH-3-20", "EPH-4-32", "EPH-6-10", "PHP-1-6", "PHP-2-3", "PHP-4-8", "PHP-4-19", "COL-3-2", "COL-3-23", "1TH-5-16", "1TH-5-18", "2TI-3-16", "HEB-4-12", "HEB-12-1", "HEB-13-5", "HEB-13-8", "JAS-1-5", "JAS-1-17", "JAS-4-8", "1PE-5-7", "2PE-3-9", "REV-3-20", "REV-21-4", "PSA-16-11", "PSA-19-14", "PSA-30-5", "PSA-32-8", "PSA-55-22", "PSA-56-3", "PSA-91-1", "PSA-100-4", "PSA-118-24", "PSA-133-1", "PSA-145-18", "PRO-16-3", "PRO-17-17", "PRO-18-10", "PRO-22-6", "ECC-3-1", "ISA-12-2", "ISA-43-2", "GEN-1-1", "GEN-28-15", "EXO-14-14", "EXO-20-12", "DEU-6-5", "RUT-1-16", "JOS-24-15", "PSA-1-1", "PSA-8-1", "PSA-18-2", "PSA-25-4", "PSA-28-7", "PSA-31-24", "PSA-40-1", "PSA-73-26", "PSA-84-11", "PSA-86-5", "PSA-90-12", "PSA-107-1", "PSA-127-1", "PSA-138-8", "PSA-147-3", "PSA-150-6"];
+function todayStr(d){d=d||new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function votdKey(){const d=new Date();const start=new Date(d.getFullYear(),0,0);const doy=Math.floor((d-start)/864e5);return VOTD[(doy+d.getFullYear()*7)%VOTD.length]}
+async function votdCard(withClose){
+  const k=votdKey(); const [b,c,v]=k.split("-"); const bk=BOOKS[IDX[b]];
+  let r=null; try{r=(await loadBook(b)).find(x=>x[0]===+c&&x[1]===+v)}catch(e){}
+  if(!r)return "";
+  return `<div class="votd"><div class="vh"><span>☀ Veesi ʻoe ʻaho · Verse of the day</span>${withClose?'<button class="vx" id="votdX" aria-label="Hide">✕</button>':""}</div>
+  <div class="vt">${esc(r[2])}</div><div class="vr">${esc(bk[1])} ${c}:${v}</div><div class="ve">${esc(r[3])}</div><div class="vr">${esc(bk[2])} ${c}:${v}, KJV</div>
+  <div class="vb"><button data-go="${b}-${c}-${v}" class="vgo">Read chapter</button><button class="vcp" data-k="${k}">Copy</button></div></div>`;
+}
+document.addEventListener("click",async e=>{
+  const cp=e.target.closest(".vcp"); if(cp){const [b,c,v]=cp.dataset.k.split("-");const bk=BOOKS[IDX[b]];const r=(await loadBook(b)).find(x=>x[0]===+c&&x[1]===+v);copyText(`"${r[2]}" (${bk[1]} ${c}:${v})\n\n"${r[3]}" (${bk[2]} ${c}:${v}, KJV)`);return}
+  const g=e.target.closest("#main .vgo"); if(g){const [b,c,v]=g.dataset.go.split("-");store.set("tt-votd-seen",todayStr());go(b,+c,+v);return}
+  if(e.target.id==="votdX"){store.set("tt-votd-seen",todayStr());const el=e.target.closest(".votd");if(el)el.remove()}
+});
+
+/* ---------- reading plans ---------- */
+function chaptersOf(codes){const out=[];for(const code of codes){const bk=BOOKS[IDX[code]];for(let c=1;c<=bk[3];c++)out.push([code,c])}return out}
+function splitDays(chs,days){const out=[];for(let d=0;d<days;d++){out.push(chs.slice(Math.round(d*chs.length/days),Math.round((d+1)*chs.length/days)))}return out}
+const PLANS={
+  year:{to:"Tohi Tapu kātoa ʻi he taʻu ʻe taha",en:"Whole Bible in a year",days:365,chs:()=>chaptersOf(BOOKS.map(b=>b[0]))},
+  nt90:{to:"Fuakava Foʻou ʻi he ʻaho ʻe 90",en:"New Testament in 90 days",days:90,chs:()=>chaptersOf(BOOKS.slice(39).map(b=>b[0]))},
+  gosp:{to:"Ngaahi Kosipeli ʻi he ʻaho ʻe 30",en:"The Gospels in 30 days",days:30,chs:()=>chaptersOf(["MAT","MRK","LUK","JHN"])},
+  psa:{to:"Saame ʻi he ʻaho ʻe 30",en:"Psalms in 30 days",days:30,chs:()=>chaptersOf(["PSA"])},
+  pro:{to:"Lea Fakatātā ʻi he ʻaho ʻe 31",en:"Proverbs in a month",days:31,chs:()=>chaptersOf(["PRO"])}
+};
+let plan=null; try{plan=JSON.parse(store.get("tt-plan")||"null")}catch(e){plan=null}
+if(plan&&!PLANS[plan.id])plan=null;
+function savePlan(){store.set("tt-plan",JSON.stringify(plan))}
+function planDays(){return splitDays(PLANS[plan.id].chs(),PLANS[plan.id].days)}
+function dayLabel(list){
+  const parts=[];for(const [b,c] of list){const last=parts[parts.length-1];if(last&&last.b===b&&last.e===c-1)last.e=c;else parts.push({b,s:c,e:c})}
+  return parts.map(p=>{const bk=BOOKS[IDX[p.b]];return bk[1]+" "+(p.s===p.e?p.s:p.s+"–"+p.e)}).join(", ");
+}
+function planToday(){const start=new Date(plan.start+"T00:00:00");const n=Math.round((new Date(todayStr()+"T00:00:00")-start)/864e5);return Math.max(0,Math.min(n,PLANS[plan.id].days-1))}
+function openPlans(){
+  sheetMode="plans"; openSheet("Reading plans · Palani lau",false);
+  let h=TABS();
+  if(!plan){
+    h+=`<p class="status">Choose a plan. Your progress is saved on this phone only.</p>`;
+    for(const [id,P] of Object.entries(PLANS)){const n=P.chs().length;h+=`<button class="res" data-plan="${id}"><div class="r">${esc(P.en)}</div><div class="t">${esc(P.to)}</div><div class="e">${P.days} days · ${n} chapters · about ${Math.round(n/P.days*10)/10} a day</div></button>`}
+    $("sheetBody").innerHTML=h; wireTabs(); return;
+  }
+  const P=PLANS[plan.id], days=planDays(), done=new Set(plan.done||[]), t=planToday();
+  const pct=Math.round(done.size/P.days*100);
+  h+=`<div class="votd"><div class="vh"><span>${esc(P.to)} · ${esc(P.en)}</span></div>
+    <div class="pbar"><div style="width:${pct}%"></div></div><div class="vr">${done.size} of ${P.days} days done · ${pct}%</div>
+    <div class="vt" style="margin-top:10px">Today · Day ${t+1}: ${esc(dayLabel(days[t]))}</div>
+    <div class="vb">${days[t].map(([b,c])=>`<button data-go="${b}-${c}">${esc(BOOKS[IDX[b]][1])} ${c}</button>`).join("")}<button class="pdone${done.has(t)?" on":""}" data-day="${t}">${done.has(t)?"✓ Done":"Mark done"}</button></div></div>
+    <h2>All days</h2>`;
+  days.forEach((list,i)=>{h+=`<div class="pday${i===t?" cur":""}"><button class="pchk${done.has(i)?" on":""}" data-day="${i}" aria-label="Day ${i+1} done">${done.has(i)?"✓":""}</button><button class="plink" data-go="${list[0][0]}-${list[0][1]}"><b>Day ${i+1}</b> ${esc(dayLabel(list))}</button></div>`});
+  h+=`<button class="more" id="planStop">Stop this plan</button>`;
+  $("sheetBody").innerHTML=h; wireTabs();
+  const cur=document.querySelector(".pday.cur"); if(cur&&t>3)setTimeout(()=>cur.scrollIntoView({block:"center"}),50);
+}
+$("sheetBody").addEventListener("click",e=>{
+  const pl=e.target.closest("[data-plan]"); if(pl){e.stopPropagation();plan={id:pl.dataset.plan,start:todayStr(),done:[]};savePlan();openPlans();toast("Plan started");return}
+  const d=e.target.closest(".pchk,.pdone"); if(d){e.stopPropagation();const i=+d.dataset.day;const st=new Set(plan.done||[]);st.has(i)?st.delete(i):st.add(i);plan.done=[...st];savePlan();(sheetMode==="today"?openToday:openPlans)();return}
+  if(e.target.id==="planStop"){e.stopPropagation();if(e.target.dataset.sure){plan=null;savePlan();openPlans();toast("Plan stopped")}else{e.target.dataset.sure="1";e.target.textContent="Tap again to stop (your progress will be cleared)"}}
+},true);
+async function openToday(){
+  sheetMode="today"; openSheet("Today · ʻAho ni",false);
+  let h=TABS()+await votdCard(false);
+  if(plan){const days=planDays(),t=planToday(),done=new Set(plan.done||[]);h+=`<div class="votd"><div class="vh"><span>📖 Today’s reading · Day ${t+1}</span></div><div class="vt">${esc(dayLabel(days[t]))}</div><div class="vb">${days[t].map(([b,c])=>`<button data-go="${b}-${c}">${esc(BOOKS[IDX[b]][1])} ${c}</button>`).join("")}<button class="pdone${done.has(t)?" on":""}" data-day="${t}">${done.has(t)?"✓ Done":"Mark done"}</button></div></div>`}
+  else h+=`<div class="votd"><div class="vh"><span>📖 Reading plan</span></div><div class="vt" style="font-size:16px">No plan yet.</div><div class="vb"><button id="toPlans">Choose a plan</button></div></div>`;
+  $("sheetBody").innerHTML=h; wireTabs();
+  const tp=$("toPlans"); if(tp)tp.onclick=openPlans;
+}
+
+/* ---------- notes ---------- */
+let notes={}; try{notes=JSON.parse(store.get("tt-notes")||"{}")}catch(e){notes={}}
+function getNote(b,c,v){return notes[bmKey(b,c,v)]||""}
+function saveNotes(){store.set("tt-notes",JSON.stringify(notes))}
+let noteTarget=null;
+function openNote(b,c,v){
+  noteTarget=[b,c,v]; const bk=BOOKS[IDX[b]];
+  $("noteRef").textContent=`${bk[1]} ${c}:${v} · ${bk[2]} ${c}:${v}`;
+  $("noteText").value=getNote(b,c,v);
+  $("noteDel").style.visibility=getNote(b,c,v)?"visible":"hidden";
+  $("noteModal").classList.add("show"); setTimeout(()=>$("noteText").focus(),50);
+}
+function closeNote(){$("noteModal").classList.remove("show")}
+$("noteCancel").onclick=closeNote;
+$("noteModal").addEventListener("click",e=>{if(e.target.id==="noteModal")closeNote()});
+$("noteSave").onclick=()=>{
+  const [b,c,v]=noteTarget, k=bmKey(b,c,v), txt=$("noteText").value.trim();
+  if(txt)notes[k]=txt; else delete notes[k];
+  saveNotes(); closeNote(); toast(txt?"Note saved":"Note deleted");
+  if(b===state.b&&c===state.c){pendingVerse=v;render()} else if(sheetMode==="notes")openNotesList();
+};
+$("noteDel").onclick=()=>{$("noteText").value="";$("noteSave").onclick()};
+
+/* ---------- settings: text size, theme, layout ---------- */
+const SIZES=[15,17,19,21,24,28];
+let fsIdx=+(store.get("tt-fs")||2); if(!(fsIdx>=0&&fsIdx<SIZES.length))fsIdx=2;
+let theme=store.get("tt-theme")||"auto";
+let sbs=store.get("tt-sbs")==="1";
+let look={}; try{look=JSON.parse(store.get("tt-look")||"{}")}catch(e){look={}}
+let splashOn=store.get("tt-splash")!=="0";
+const BGS={auto:null,
+  white:{bg:"#ffffff",paper:"#ffffff",ink:"#1b1b1b",muted:"#6b6b6b",line:"#e5e5e5",engbg:"#f4f4f4",enging:"#3a3a3a"},
+  cream:{bg:"#faf7f0",paper:"#ffffff",ink:"#1e1b16",muted:"#6f675a",line:"#e6dfd0",engbg:"#f3efe5",enging:"#3d3a33"},
+  sepia:{bg:"#f1e4c8",paper:"#f7ecd5",ink:"#3b2a17",muted:"#7a6446",line:"#dcc9a3",engbg:"#ead9b6",enging:"#4a3820"},
+  grey:{bg:"#e9eaec",paper:"#f5f6f7",ink:"#1f2328",muted:"#5f6670",line:"#d3d6da",engbg:"#dfe2e6",enging:"#2f353c"},
+  night:{bg:"#000000",paper:"#111111",ink:"#e8e8e8",muted:"#9a9a9a",line:"#2a2a2a",engbg:"#1a1a1a",enging:"#cfcfcf"}};
+const INKS={auto:null,black:"#111111",brown:"#4a2c17",navy:"#14284b",green:"#163d2a",white:"#f2f2f2",gold:"#e9d8a6"};
+const ACCS={red:["#8c1c13","rgba(140,28,19,.10)"],navy:["#1f3f7a","rgba(31,63,122,.10)"],green:["#1d6b45","rgba(29,107,69,.10)"],gold:["#9a6b00","rgba(154,107,0,.12)"],purple:["#5b2a86","rgba(91,42,134,.10)"],teal:["#0f6e75","rgba(15,110,117,.10)"]};
+const FONTS={serif:'"Gentium Book Plus",Georgia,serif',sans:'Inter,system-ui,sans-serif',classic:'Georgia,"Times New Roman",serif'};
+const LHS={compact:1.4,normal:1.6,relaxed:1.9};
+function applySettings(){
+  document.documentElement.style.setProperty("--fs",SIZES[fsIdx]+"px");
+  if(theme==="auto")document.documentElement.removeAttribute("data-theme"); else document.documentElement.setAttribute("data-theme",theme);
+  document.body.classList.toggle("sbs",sbs);
+  const R=document.documentElement.style;
+  ["--bg","--paper","--ink","--muted","--line","--eng-bg","--eng-ink","--accent","--accent-soft"].forEach(v=>R.removeProperty(v));
+  const B=BGS[look.bg||"auto"]; if(B){R.setProperty("--bg",B.bg);R.setProperty("--paper",B.paper);R.setProperty("--ink",B.ink);R.setProperty("--muted",B.muted);R.setProperty("--line",B.line);R.setProperty("--eng-bg",B.engbg);R.setProperty("--eng-ink",B.enging)}
+  const I=INKS[look.ink||"auto"]; if(I){R.setProperty("--ink",I);R.setProperty("--eng-ink",I)}
+  const A=ACCS[look.acc]; if(A){R.setProperty("--accent",A[0]);R.setProperty("--accent-soft",A[1])}
+  R.setProperty("--ff",FONTS[look.font||"serif"]); R.setProperty("--lh",LHS[look.lh||"normal"]);
+  $("allBtn").style.display=sbs?"none":"";
+}
+function openSettings(){
+  sheetMode="settings"; openSheet("Settings · Fokotuʻutuʻu",false);
+  const seg=(id,opts,cur)=>`<div class="seg" id="${id}">${opts.map(([v,l])=>`<button data-v="${v}" class="${String(cur)===String(v)?"on":""}">${l}</button>`).join("")}</div>`;
+  $("sheetBody").innerHTML=`
+  <div class="opt"><span>Text size</span><div class="seg"><button id="fsDown" aria-label="Smaller text">A−</button><button id="fsUp" aria-label="Larger text" style="font-size:17px">A+</button></div></div>
+  <div class="opt"><span>Theme</span>${seg("thSeg",[["auto","Auto"],["light","Light"],["dark","Dark"]],theme)}</div>
+  <div class="opt"><span>Layout</span>${seg("lySeg",[["0","Tap for English"],["1","Side by side"]],sbs?1:0)}</div>
+  <p class="status">Side by side shows Tongan and English in two columns. It works best on a tablet or a phone turned sideways.</p>
+  <div class="opt"><span>Font</span>${seg("ftSeg",[["serif","Book"],["classic","Classic"],["sans","Modern"]],look.font||"serif")}</div>
+  <div class="opt"><span>Line spacing</span>${seg("lhSeg",[["compact","Tight"],["normal","Normal"],["relaxed","Wide"]],look.lh||"normal")}</div>
+  <div class="opt"><span>Background</span><div class="sws" id="bgSw">${Object.keys(BGS).map(k=>`<button class="sw${(look.bg||"auto")===k?" on":""}" data-v="${k}" title="${k}" style="background:${BGS[k]?BGS[k].bg:"linear-gradient(135deg,#faf7f0 50%,#16140f 50%)"}"></button>`).join("")}</div></div>
+  <div class="opt"><span>Text colour</span><div class="sws" id="inkSw">${Object.keys(INKS).map(k=>`<button class="sw${(look.ink||"auto")===k?" on":""}" data-v="${k}" title="${k}" style="background:${INKS[k]||"linear-gradient(135deg,#1e1b16 50%,#efe9dc 50%)"}"></button>`).join("")}</div></div>
+  <div class="opt"><span>Highlight &amp; button colour</span><div class="sws" id="accSw">${Object.keys(ACCS).map(k=>`<button class="sw${(look.acc||"red")===k?" on":""}" data-v="${k}" title="${k}" style="background:${ACCS[k][0]}"></button>`).join("")}</div></div>
+  <div class="opt"><span>Opening book animation</span>${seg("spSeg",[["1","On"],["0","Off"]],splashOn?1:0)}</div>
+  <button class="more" id="resetLook">Reset to default look</button>
+  <div class="preview"><span style="color:var(--accent);font:600 12px Inter,sans-serif;vertical-align:super">16</span> He naʻe ʻofa pehē ʻae ʻOtua ki māmani…</div>`;
+  $("fsDown").onclick=()=>{if(fsIdx>0){fsIdx--;store.set("tt-fs",fsIdx);applySettings()}};
+  $("fsUp").onclick=()=>{if(fsIdx<SIZES.length-1){fsIdx++;store.set("tt-fs",fsIdx);applySettings()}};
+  document.querySelectorAll("#thSeg button").forEach(b=>b.onclick=()=>{theme=b.dataset.v;store.set("tt-theme",theme);applySettings();document.querySelectorAll("#thSeg button").forEach(x=>x.classList.toggle("on",x===b))});
+  document.querySelectorAll("#lySeg button").forEach(b=>b.onclick=()=>{sbs=b.dataset.v==="1";store.set("tt-sbs",sbs?"1":"0");applySettings();document.querySelectorAll("#lySeg button").forEach(x=>x.classList.toggle("on",x===b))});
+  const saveLook=()=>{store.set("tt-look",JSON.stringify(look));applySettings()};
+  const wire=(id,key,isSw)=>document.querySelectorAll("#"+id+" button").forEach(b=>b.onclick=()=>{look[key]=b.dataset.v;saveLook();document.querySelectorAll("#"+id+" button").forEach(x=>x.classList.toggle("on",x===b))});
+  wire("ftSeg","font");wire("lhSeg","lh");wire("bgSw","bg");wire("inkSw","ink");wire("accSw","acc");
+  document.querySelectorAll("#spSeg button").forEach(b=>b.onclick=()=>{splashOn=b.dataset.v==="1";store.set("tt-splash",splashOn?"1":"0");document.querySelectorAll("#spSeg button").forEach(x=>x.classList.toggle("on",x===b))});
+  $("resetLook").onclick=()=>{look={};fsIdx=2;theme="auto";sbs=false;store.set("tt-look","{}");store.set("tt-fs",2);store.set("tt-theme","auto");store.set("tt-sbs","0");applySettings();openSettings();toast("Look reset")};
+}
+$("setBtn").onclick=openSettings;
+$("closeBtn").addEventListener("click",()=>{if(sheetMode==="settings")render()});
+
+/* ---------- routing ---------- */
+function fromHash(){
+  const m=/^#([1-3]?[A-Z]{2,3})-(\d+)(?:-(\d+))?$/.exec(location.hash||"");
+  if(m&&m[1] in IDX){const c=Math.min(Math.max(1,+m[2]),BOOKS[IDX[m[1]]][3]);return{b:m[1],c,v:m[3]?+m[3]:null}}
+  return null;
+}
+window.addEventListener("hashchange",()=>{const s=fromHash(); if(s&&(s.b!==state.b||s.c!==state.c||s.v)){go(s.b,s.c,s.v)}});
+(function init(){
+  applySettings();
+  const sp=$("splash");
+  if(!splashOn){sp.remove()} else {
+    const hide=()=>{if(!sp.isConnected)return;sp.classList.add("hide");setTimeout(()=>sp.remove(),650)};
+    sp.addEventListener("click",hide); setTimeout(hide,3400);
+  }
+  showAll=store.get("tt-all")==="1"; $("allBtn").classList.toggle("on",showAll);
+  const s=fromHash(); if(s){state={b:s.b,c:s.c};pendingVerse=s.v} else {
+    const saved=(store.get("tt-loc")||"").split("-"); if(saved[0] in IDX) state={b:saved[0],c:+saved[1]||1};
+  }
+  const ds=new Date(),dstr=ds.getFullYear()+"-"+String(ds.getMonth()+1).padStart(2,"0")+"-"+String(ds.getDate()).padStart(2,"0");
+  if(store.get("tt-votd-seen")!==dstr&&!s)showVotdNow=true;
+  render();
+  try{if("serviceWorker" in navigator&&location.protocol==="https:"&&!/claude|anthropic/.test(location.hostname))navigator.serviceWorker.register("sw.js").catch(()=>{})}catch(e){}
+})();
+</script>
+</body>
+</html>
