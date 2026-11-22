@@ -154,7 +154,8 @@ footer{color:var(--muted);font-size:12px;text-align:center;margin:30px 0 0;line-
     <button class="icon" id="searchBtn" title="Search or go to a verse" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
     <button class="icon" id="bmBtn" title="Today, plans, bookmarks, notes" aria-label="My Bible"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/></svg></button>
     <button class="icon" id="setBtn" title="Text size, dark mode, layout" aria-label="Settings" style="font-weight:600">Aa</button>
-    <button class="icon" id="allBtn" title="Show English for every verse">EN</button>
+    <button class="icon" id="langBtn" title="Switch main language: Tongan or English" aria-label="Switch language" style="font-weight:600">⇄</button>
+    <button class="icon" id="allBtn" title="Show the translation for every verse">EN</button>
   </div>
 </header>
 <main id="main"><div class="load">Loading…</div></main>
@@ -219,21 +220,23 @@ function copyText(txt){
 /* ---------- chapter view ---------- */
 async function render(){
   const bk=BOOKS[IDX[state.b]];
-  $("ref").textContent=bk[1]+" "+state.c;
-  $("refEn").textContent=bk[2]+" "+state.c;
+  const EN=prim==="en";
+  $("ref").textContent=(EN?bk[2]:bk[1])+" "+state.c;
+  $("refEn").textContent=(EN?bk[1]:bk[2])+" "+state.c;
   $("main").innerHTML='<div class="load">Loading…</div>';
   let rows;
   try{rows=await loadBook(state.b)}catch(e){$("main").innerHTML='<div class="load">Could not load this book. Check your connection and try again.</div>';return}
   const vs=rows.filter(r=>r[0]===state.c);
   let titles={}; if(state.b==="PSA"){titles=await loadTitles();}
   const pt=titles[String(state.c)];
-  let h='<p class="hint">Tap a verse to see the English (KJV), bookmark it, highlight it or add a note.</p>';
-  if(pt&&(pt.t||pt.e)){h+=`<div class="verse ptitle${showAll?" open":""}" role="button" tabindex="0">${esc(pt.t||"")}<span class="eng"><b>KJV heading</b>${esc(pt.e||"")}</span></div>`;}
-  for(const [c,v,t,e] of vs){
+  let h=EN?'<p class="hint">Tap a verse to see the Tongan, bookmark it, highlight it or add a note.</p>':'<p class="hint">Tap a verse to see the English (KJV), bookmark it, highlight it or add a note.</p>';
+  if(pt&&(pt.t||pt.e)){const a=EN?pt.e:pt.t,b2=EN?pt.t:pt.e;h+=`<div class="verse ptitle${showAll?" open":""}" role="button" tabindex="0">${esc(a||"")}<span class="eng"><b>${EN?"Tongan heading":"KJV heading"}</b>${esc(b2||"")}</span></div>`;}
+  for(const [c,v,t0,e0] of vs){
+    const t=EN?e0:t0, e=EN?t0:e0;
     const bm=isBm(state.b,c,v);
     const nt=getNote(state.b,c,v);
     const hc=getHl(state.b,c,v);
-    h+=`<div class="verse${showAll?" open":""}${hc?" hlv":""}"${hc?` style="--hlc:${HLC[hc]}"`:""} role="button" tabindex="0" data-v="${v}" id="v${v}"><span class="ton"><span class="num">${v}</span>${bm?'<span class="star">★</span>':''}${nt?'<span class="nmark">📝</span>':''}${esc(t||"—")}</span><span class="eng"><b>KJV ${esc(bk[2])} ${c}:${v}</b>${esc(e||"—")}</span>${nt?`<span class="note"><b>MY NOTE</b>${esc(nt)}</span>`:""}<span class="acts"><button data-act="bm" class="${bm?"on":""}">${bm?"★ Bookmarked":"☆ Bookmark"}</button><button data-act="nt">${nt?"✎ Edit note":"✎ Add note"}</button><span class="hl">${Object.keys(HLC).map(k=>`<button class="sw${hc===k?" on":""}" data-act="hl" data-c="${k}" style="background:${HLC[k]}" aria-label="Highlight ${k}"></button>`).join("")}${hc?'<button data-act="hl" data-c="" style="padding:5px 10px">✕</button>':""}</span></span></div>`;
+    h+=`<div class="verse${showAll?" open":""}${hc?" hlv":""}"${hc?` style="--hlc:${HLC[hc]}"`:""} role="button" tabindex="0" data-v="${v}" id="v${v}"><span class="ton"><span class="num">${v}</span>${bm?'<span class="star">★</span>':''}${nt?'<span class="nmark">📝</span>':''}${esc(t||"—")}</span><span class="eng"><b>${EN?esc(bk[1])+" "+c+":"+v+" · Tongan":"KJV "+esc(bk[2])+" "+c+":"+v}</b>${esc(e||"—")}</span>${nt?`<span class="note"><b>MY NOTE</b>${esc(nt)}</span>`:""}<span class="acts"><button data-act="bm" class="${bm?"on":""}">${bm?"★ Bookmarked":"☆ Bookmark"}</button><button data-act="nt">${nt?"✎ Edit note":"✎ Add note"}</button><span class="hl">${Object.keys(HLC).map(k=>`<button class="sw${hc===k?" on":""}" data-act="hl" data-c="${k}" style="background:${HLC[k]}" aria-label="Highlight ${k}"></button>`).join("")}${hc?'<button data-act="hl" data-c="" style="padding:5px 10px">✕</button>':""}</span></span></div>`;
   }
   if(showVotdNow){showVotdNow=false;h=(await votdCard(true))+h;}
   h+=`<footer>Tongan: Ko e Tohi Tapu Kātoa, Revised West Version (public domain)<br>English: King James Version, 1769 standard text (public domain)<br>Text via eBible.org</footer>`;
@@ -557,6 +560,7 @@ const SIZES=[15,17,19,21,24,28];
 let fsIdx=+(store.get("tt-fs")||2); if(!(fsIdx>=0&&fsIdx<SIZES.length))fsIdx=2;
 let theme=store.get("tt-theme")||"auto";
 let sbs=store.get("tt-sbs")==="1";
+let prim=store.get("tt-prim")==="en"?"en":"to";
 let look={}; try{look=JSON.parse(store.get("tt-look")||"{}")}catch(e){look={}}
 let splashOn=store.get("tt-splash")!=="0";
 const BGS={auto:null,
@@ -580,14 +584,21 @@ function applySettings(){
   const A=ACCS[look.acc]; if(A){R.setProperty("--accent",A[0]);R.setProperty("--accent-soft",A[1])}
   R.setProperty("--ff",FONTS[look.font||"serif"]); R.setProperty("--lh",LHS[look.lh||"normal"]);
   $("allBtn").style.display=sbs?"none":"";
+  $("allBtn").textContent=prim==="en"?"TO":"EN";
+  $("allBtn").title=prim==="en"?"Show Tongan for every verse":"Show English for every verse";
+  $("langBtn").classList.toggle("on",prim==="en");
+  document.documentElement.lang=prim==="en"?"en":"to";
 }
+function setPrim(v){prim=v;store.set("tt-prim",prim);applySettings();}
 function openSettings(){
   sheetMode="settings"; openSheet("Settings · Fokotuʻutuʻu",false);
   const seg=(id,opts,cur)=>`<div class="seg" id="${id}">${opts.map(([v,l])=>`<button data-v="${v}" class="${String(cur)===String(v)?"on":""}">${l}</button>`).join("")}</div>`;
   $("sheetBody").innerHTML=`
   <div class="opt"><span>Text size</span><div class="seg"><button id="fsDown" aria-label="Smaller text">A−</button><button id="fsUp" aria-label="Larger text" style="font-size:17px">A+</button></div></div>
   <div class="opt"><span>Theme</span>${seg("thSeg",[["auto","Auto"],["light","Light"],["dark","Dark"]],theme)}</div>
-  <div class="opt"><span>Layout</span>${seg("lySeg",[["0","Tap for English"],["1","Side by side"]],sbs?1:0)}</div>
+  <div class="opt"><span>Main language</span>${seg("lgSeg",[["to","Tongan"],["en","English"]],prim)}</div>
+  <p class="status">Choose which language you read in. Tap a verse to see the other one. You can also switch with the ⇄ button at the top.</p>
+  <div class="opt"><span>Layout</span>${seg("lySeg",[["0","Tap to translate"],["1","Side by side"]],sbs?1:0)}</div>
   <p class="status">Side by side shows Tongan and English in two columns. It works best on a tablet or a phone turned sideways.</p>
   <div class="opt"><span>Font</span>${seg("ftSeg",[["serif","Book"],["classic","Classic"],["sans","Modern"]],look.font||"serif")}</div>
   <div class="opt"><span>Line spacing</span>${seg("lhSeg",[["compact","Tight"],["normal","Normal"],["relaxed","Wide"]],look.lh||"normal")}</div>
@@ -601,13 +612,15 @@ function openSettings(){
   $("fsUp").onclick=()=>{if(fsIdx<SIZES.length-1){fsIdx++;store.set("tt-fs",fsIdx);applySettings()}};
   document.querySelectorAll("#thSeg button").forEach(b=>b.onclick=()=>{theme=b.dataset.v;store.set("tt-theme",theme);applySettings();document.querySelectorAll("#thSeg button").forEach(x=>x.classList.toggle("on",x===b))});
   document.querySelectorAll("#lySeg button").forEach(b=>b.onclick=()=>{sbs=b.dataset.v==="1";store.set("tt-sbs",sbs?"1":"0");applySettings();document.querySelectorAll("#lySeg button").forEach(x=>x.classList.toggle("on",x===b))});
+  document.querySelectorAll("#lgSeg button").forEach(b=>b.onclick=()=>{setPrim(b.dataset.v);document.querySelectorAll("#lgSeg button").forEach(x=>x.classList.toggle("on",x===b))});
   const saveLook=()=>{store.set("tt-look",JSON.stringify(look));applySettings()};
   const wire=(id,key,isSw)=>document.querySelectorAll("#"+id+" button").forEach(b=>b.onclick=()=>{look[key]=b.dataset.v;saveLook();document.querySelectorAll("#"+id+" button").forEach(x=>x.classList.toggle("on",x===b))});
   wire("ftSeg","font");wire("lhSeg","lh");wire("bgSw","bg");wire("inkSw","ink");wire("accSw","acc");
   document.querySelectorAll("#spSeg button").forEach(b=>b.onclick=()=>{splashOn=b.dataset.v==="1";store.set("tt-splash",splashOn?"1":"0");document.querySelectorAll("#spSeg button").forEach(x=>x.classList.toggle("on",x===b))});
-  $("resetLook").onclick=()=>{look={};fsIdx=2;theme="auto";sbs=false;store.set("tt-look","{}");store.set("tt-fs",2);store.set("tt-theme","auto");store.set("tt-sbs","0");applySettings();openSettings();toast("Look reset")};
+  $("resetLook").onclick=()=>{look={};fsIdx=2;theme="auto";sbs=false;prim="to";store.set("tt-prim","to");store.set("tt-look","{}");store.set("tt-fs",2);store.set("tt-theme","auto");store.set("tt-sbs","0");applySettings();openSettings();toast("Look reset")};
 }
 $("setBtn").onclick=openSettings;
+$("langBtn").onclick=()=>{setPrim(prim==="en"?"to":"en");render();toast(prim==="en"?"Reading in English":"Lau ʻi he lea fakaTonga")};
 $("closeBtn").addEventListener("click",()=>{if(sheetMode==="settings")render()});
 
 /* ---------- routing ---------- */
