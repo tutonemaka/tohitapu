@@ -227,13 +227,13 @@ async function render(){
   const vs=rows.filter(r=>r[0]===state.c);
   let titles={}; if(state.b==="PSA"){titles=await loadTitles();}
   const pt=titles[String(state.c)];
-  let h='<p class="hint">Tap a verse to see the English (KJV), copy it, bookmark it or add a note.</p>';
+  let h='<p class="hint">Tap a verse to see the English (KJV), bookmark it, highlight it or add a note.</p>';
   if(pt&&(pt.t||pt.e)){h+=`<div class="verse ptitle${showAll?" open":""}" role="button" tabindex="0">${esc(pt.t||"")}<span class="eng"><b>KJV heading</b>${esc(pt.e||"")}</span></div>`;}
   for(const [c,v,t,e] of vs){
     const bm=isBm(state.b,c,v);
     const nt=getNote(state.b,c,v);
     const hc=getHl(state.b,c,v);
-    h+=`<div class="verse${showAll?" open":""}${hc?" hlv":""}"${hc?` style="--hlc:${HLC[hc]}"`:""} role="button" tabindex="0" data-v="${v}" id="v${v}"><span class="ton"><span class="num">${v}</span>${bm?'<span class="star">★</span>':''}${nt?'<span class="nmark">📝</span>':''}${esc(t||"—")}</span><span class="eng"><b>KJV ${esc(bk[2])} ${c}:${v}</b>${esc(e||"—")}</span>${nt?`<span class="note"><b>MY NOTE</b>${esc(nt)}</span>`:""}<span class="acts"><button data-act="ct">Copy Tongan</button><button data-act="ce">Copy English</button><button data-act="cb">Copy both</button><button data-act="bm" class="${bm?"on":""}">${bm?"★ Bookmarked":"☆ Bookmark"}</button><button data-act="nt">${nt?"✎ Edit note":"✎ Add note"}</button><span class="hl">${Object.keys(HLC).map(k=>`<button class="sw${hc===k?" on":""}" data-act="hl" data-c="${k}" style="background:${HLC[k]}" aria-label="Highlight ${k}"></button>`).join("")}${hc?'<button data-act="hl" data-c="" style="padding:5px 10px">✕</button>':""}</span></span></div>`;
+    h+=`<div class="verse${showAll?" open":""}${hc?" hlv":""}"${hc?` style="--hlc:${HLC[hc]}"`:""} role="button" tabindex="0" data-v="${v}" id="v${v}"><span class="ton"><span class="num">${v}</span>${bm?'<span class="star">★</span>':''}${nt?'<span class="nmark">📝</span>':''}${esc(t||"—")}</span><span class="eng"><b>KJV ${esc(bk[2])} ${c}:${v}</b>${esc(e||"—")}</span>${nt?`<span class="note"><b>MY NOTE</b>${esc(nt)}</span>`:""}<span class="acts"><button data-act="bm" class="${bm?"on":""}">${bm?"★ Bookmarked":"☆ Bookmark"}</button><button data-act="nt">${nt?"✎ Edit note":"✎ Add note"}</button><span class="hl">${Object.keys(HLC).map(k=>`<button class="sw${hc===k?" on":""}" data-act="hl" data-c="${k}" style="background:${HLC[k]}" aria-label="Highlight ${k}"></button>`).join("")}${hc?'<button data-act="hl" data-c="" style="padding:5px 10px">✕</button>':""}</span></span></div>`;
   }
   if(showVotdNow){showVotdNow=false;h=(await votdCard(true))+h;}
   h+=`<footer>Tongan: Ko e Tohi Tapu Kātoa, Revised West Version (public domain)<br>English: King James Version, 1769 standard text (public domain)<br>Text via eBible.org</footer>`;
@@ -259,10 +259,7 @@ $("main").addEventListener("click",async e=>{
     const rows=await loadBook(state.b); const r=rows.find(x=>x[0]===state.c&&x[1]===vn); if(!r)return;
     const refT=`${bk[1]} ${state.c}:${vn}`, refE=`${bk[2]} ${state.c}:${vn}`;
     const act=a.dataset.act;
-    if(act==="ct") copyText(`"${r[2]}" (${refT})`);
-    else if(act==="ce") copyText(`"${r[3]}" (${refE}, KJV)`);
-    else if(act==="cb") copyText(`"${r[2]}" (${refT})\n\n"${r[3]}" (${refE}, KJV)`);
-    else if(act==="nt"){ openNote(state.b,state.c,vn); }
+    if(act==="nt"){ openNote(state.b,state.c,vn); }
     else if(act==="hl"){ setHl(state.b,state.c,vn,a.dataset.c); pendingVerse=vn; render(); toast(a.dataset.c?"Highlighted":"Highlight removed"); }
     else if(act==="bm"){
       const on=toggleBm(state.b,state.c,vn);
@@ -472,10 +469,9 @@ async function votdCard(withClose){
   if(!r)return "";
   return `<div class="votd"><div class="vh"><span>☀ Veesi ʻoe ʻaho · Verse of the day</span>${withClose?'<button class="vx" id="votdX" aria-label="Hide">✕</button>':""}</div>
   <div class="vt">${esc(r[2])}</div><div class="vr">${esc(bk[1])} ${c}:${v}</div><div class="ve">${esc(r[3])}</div><div class="vr">${esc(bk[2])} ${c}:${v}, KJV</div>
-  <div class="vb"><button data-go="${b}-${c}-${v}" class="vgo">Read chapter</button><button class="vcp" data-k="${k}">Copy</button></div></div>`;
+  <div class="vb"><button data-go="${b}-${c}-${v}" class="vgo">Read chapter</button></div></div>`;
 }
 document.addEventListener("click",async e=>{
-  const cp=e.target.closest(".vcp"); if(cp){const [b,c,v]=cp.dataset.k.split("-");const bk=BOOKS[IDX[b]];const r=(await loadBook(b)).find(x=>x[0]===+c&&x[1]===+v);copyText(`"${r[2]}" (${bk[1]} ${c}:${v})\n\n"${r[3]}" (${bk[2]} ${c}:${v}, KJV)`);return}
   const g=e.target.closest("#main .vgo"); if(g){const [b,c,v]=g.dataset.go.split("-");store.set("tt-votd-seen",todayStr());go(b,+c,+v);return}
   if(e.target.id==="votdX"){store.set("tt-votd-seen",todayStr());const el=e.target.closest(".votd");if(el)el.remove()}
 });
