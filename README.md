@@ -1,4 +1,4 @@
-Tohi Tapu – Tongan & English Bible (website version)
+Tohitapu – Tongan & English Bible (website version)
 
 HOW TO PUT IT ONLINE (free, about 5 minutes, easiest on a computer):
 1. Unzip this folder.
